@@ -1,0 +1,19 @@
+clr c
+mov a, #33h
+mov b, #22h
+add a,b
+mov r0, a
+clr c
+mov a, #33h
+subb a,b
+mov rl, a
+clr c
+mov a, #33h
+mul ab
+mov r2, a
+mov r3, b
+clr c
+mov a, #33h
+div ab
+mov r4, a
+nov r5, b

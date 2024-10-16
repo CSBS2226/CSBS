@@ -1,0 +1,18 @@
+clr c
+mov a, #33h
+mov b, #22h
+anl a,b
+mov r0, a
+mov a, #33h
+xr1 a,b
+mov r2 , a
+mov a, #33h
+cpl a
+mov r3,a
+mov a, #33h
+inc a
+mov r4 , a
+mov a, #33h
+dec a
+mov r5, a
+end

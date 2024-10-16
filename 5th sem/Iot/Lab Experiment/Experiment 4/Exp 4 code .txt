@@ -1,0 +1,14 @@
+#include< reg51.h>
+void main()
+{
+   unsigned int addition, multiplication;
+   unsigned char a, b, subtract, division, modulation;
+   a=Ox33;
+   b=Ox22;
+   addition=a+b;
+   subtract=a-b;
+   multiplication=a*b;
+   division=a/b;
+   modulation=a%b;
+   while( l);
+}

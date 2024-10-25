@@ -1,0 +1,81 @@
+import lcddriver  # Import LCD Library
+from time import *  # Import Delay Library
+import RPi.GPIO as GPIO  # Import GPIO Library
+import pyrebase  # Import Firebase Library
+import Adafruit_DHT  # Import DHT Library
+import time  # Import Time Library
+
+# Initialize LCD
+lcd = lcddriver.lcd()
+DHT_SENSOR = Adafruit_DHT.DHT11  # Define DHT Model as DHT11
+DHT_PIN = 25  # DHT11 Data Pin Connected With GPIO 25
+
+# Firebase configuration
+config = {
+    "apiKey": "AIzaSyCSoqWpwTjkQXhutegwO3nUvFrpA3htREI",
+    "authDomain": "pk24-d7f90.firebaseapp.com",
+    "databaseURL": "https://pk24-d7f90-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "storageBucket": "pk24-d7f90.appspot.com",
+}
+firebase = pyrebase.initialize_app(config)  # Initialize Firebase
+
+# GPIO setup
+GPIO.setmode(GPIO.BCM)  # Define as Physical numbering
+GPIO.setwarnings(False)  # Warning Off for GPIO pins
+lcd.lcd_clear()  # Clear LCD
+lcd.lcd_display_string(" IoT Based ", 1)  # Print IoT Based on LCD 1st Line
+lcd.lcd_display_string("Weather Station", 2)  # Print Weather Station on LCD 2nd Line
+time.sleep(2)  # Delay 2 Seconds
+lcd.lcd_clear()  # Clear LCD
+lcd.lcd_display_string(" System", 1)  # Print System on LCD 1st Line
+lcd.lcd_display_string(" *******", 2)  # Print ******** on LCD 2nd Line
+time.sleep(2)  # Delay 2 Seconds
+
+try:  # Test a block of code for errors
+    while True:  # Infinite Loop Start
+        database = firebase.database()  # Read Firebase Database
+        ProjectBucket = database.child("IOTLAB")  # Define Firebase Data Storage Bucket
+
+        # Read Temperature And Humidity Value
+        humidity, temperature = Adafruit_DHT.read(DHT_SENSOR, DHT_PIN)
+
+        if humidity is not None and temperature is not None:  # Validate the Read Values
+            print("Temp={0:0.1f}C Humidity={1:0.1f}%".format(temperature, humidity))  # Print Values on Console
+            ProjectBucket.child("IOTLAB").child("Humidity").set(humidity)  # Update Humidity Value
+            ProjectBucket.child("IOTLAB").child("Temperature").set(temperature)  # Update Temperature Value
+            
+            # Update LCD
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Temp: %d%s C" % (temperature, chr(223)), 1)  # Print Temperature on LCD
+            lcd.lcd_display_string("Humidity: %d %%" % humidity, 2)  # Print Humidity on LCD
+        else:  # Non-Validated Value
+            print("DATA READING... ")  # Reading Again
+            lcd.lcd_clear()
+            lcd.lcd_display_string("DATA READING...", 1)  # Print on LCD
+            lcd.lcd_display_string(" ****", 2)
+            time.sleep(2)  # Delay 2 Seconds
+
+        # Check climate conditions
+        if temperature >= 40:  # Check SUNNY
+            print("SUNNY")
+            ProjectBucket.child("IOTLAB").child("Climate").set("Sunny")  # Update CLIMATE as SUNNY
+            lcd.lcd_clear()
+            lcd.lcd_display_string(" CLIMATE", 1)  # Print on LCD
+            lcd.lcd_display_string(" SUNNY", 2)
+        elif humidity >= 80:  # Check RAINY
+            print("RAINY")
+            ProjectBucket.child("IOTLAB").child("Climate").set("Rainy")  # Update CLIMATE as RAINY
+            lcd.lcd_clear()
+            lcd.lcd_display_string(" CLIMATE", 1)  # Print on LCD
+            lcd.lcd_display_string(" RAINY", 2)
+        else:  # Check NORMAL
+            print("NORMAL")
+            ProjectBucket.child("IOTLAB").child("Climate").set("Normal")  # Update CLIMATE as NORMAL
+            lcd.lcd_clear()
+            lcd.lcd_display_string(" CLIMATE", 1)  # Print on LCD
+            lcd.lcd_display_string(" NORMAL", 2)
+        
+        time.sleep(2)  # Delay 2 Seconds
+
+except KeyboardInterrupt:  # Program Is Interrupted By The User
+    GPIO.cleanup()  # Reset GPIO Pins

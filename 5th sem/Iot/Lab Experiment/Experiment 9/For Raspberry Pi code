@@ -4,8 +4,9 @@ addr = 0x8
 bus = SMBus(1)
 
 print("Enter 1 for ON or 0 for OFF")
+numb = 1
 
-while True:  # Changed numb == 1 to True to keep it running
+while numb == 1:
     ledstate = input(">>>> ")
 
     if ledstate == "1":
@@ -15,4 +16,5 @@ while True:  # Changed numb == 1 to True to keep it running
         bus.write_byte(addr, 0x0)
         print("LED OFF")
     else:
-        print("Invalid input! Enter 1 or 0.")
+        numb = 0
+        print("Exiting...")

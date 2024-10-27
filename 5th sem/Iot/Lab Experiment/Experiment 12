@@ -42,7 +42,7 @@ try:
     # Infinite loop to monitor Firebase for changes
     while True:
         database = firebase.database()  # Access the Firebase database
-        ProjectBucket = database.child("IOTLAB")  # Access a specific bucket
+        ProjectBucket = database.child("PK2424")  # Access a specific bucket
 
         # Get the current status of LED 1 from Firebase
         LEDDATA1 = ProjectBucket.child("LED1").get().val()

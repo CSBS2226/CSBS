@@ -41,8 +41,8 @@ try:  # Test a block of code for errors
 
         if humidity is not None and temperature is not None:  # Validate the Read Values
             print("Temp={0:0.1f}C Humidity={1:0.1f}%".format(temperature, humidity))  # Print Values on Console
-            ProjectBucket.child("IOTLAB").child("Humidity").set(humidity)  # Update Humidity Value
-            ProjectBucket.child("IOTLAB").child("Temperature").set(temperature)  # Update Temperature Value
+            ProjectBucket.child("PK24").child("Humidity").set(humidity)  # Update Humidity Value
+            ProjectBucket.child("PK24").child("Temperature").set(temperature)  # Update Temperature Value
             
             # Update LCD
             lcd.lcd_clear()

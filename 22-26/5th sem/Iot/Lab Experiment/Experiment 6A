@@ -1,0 +1,20 @@
+String read_data;  // Variable to store incoming data
+
+void setup() {
+  Serial.begin(9600);  // Initialize serial communication with 9600 baud rate
+}
+
+void loop() {
+  // Check if any data is available to read from the serial buffer
+  while (Serial.available()) {
+    delay(10);  // Small delay to allow all characters to arrive
+    char c = Serial.read();  // Read a single character from serial
+    read_data += c;  // Append the character to the string
+  }
+
+  // If a full message is received (non-empty string)
+  if (read_data.length() > 0) {
+    Serial.println(read_data);  // Send the received data back to Zigbee
+    read_data = "";  // Clear the variable for the next message
+  }
+}

@@ -1,0 +1,83 @@
+# Import necessary libraries
+import lcddriver  # Library to control the LCD
+from time import *  # Library for time delays
+import RPi.GPIO as GPIO  # Library to interact with GPIO pins of Raspberry Pi
+import pyrebase  # Firebase library for connecting to the database
+import time  # Additional time-related functions
+
+# Firebase configuration - Replace with your Firebase project details
+config = {
+    "apiKey": "AIzaSyCSoqWpwTjkQXhutegwO3nUvFrpA3htREI",
+    "authDomain": "pk24-d7f90.firebaseapp.com",
+    "databaseURL": "https://pk24-d7f90-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "storageBucket": "pk24-d7f90.appspot.com"
+}
+
+# Initialize Firebase
+firebase = pyrebase.initialize_app(config)
+
+# Set up GPIO pins for the LEDs
+LED_1 = 18  # LED 1 connected to GPIO pin 18
+LED_2 = 23  # LED 2 connected to GPIO pin 23
+
+GPIO.setmode(GPIO.BCM)  # Use Broadcom pin-numbering scheme
+GPIO.setwarnings(False)  # Suppress GPIO warnings
+GPIO.setup(LED_1, GPIO.OUT)  # Set LED 1 as output
+GPIO.setup(LED_2, GPIO.OUT)  # Set LED 2 as output
+
+# Initialize LCD
+lcd = lcddriver.lcd()  
+lcd.lcd_clear()  # Clear the LCD screen
+
+# Display welcome message
+lcd.lcd_display_string(" IoT Based ", 1)
+lcd.lcd_display_string("Home Automation", 2)
+time.sleep(2)  # Pause for 2 seconds
+lcd.lcd_clear()
+lcd.lcd_display_string(" System", 1)
+lcd.lcd_display_string(" *******", 2)
+time.sleep(2)  # Pause for 2 seconds
+
+try:
+    # Infinite loop to monitor Firebase for changes
+    while True:
+        database = firebase.database()  # Access the Firebase database
+        ProjectBucket = database.child("PK2424")  # Access a specific bucket
+
+        # Get the current status of LED 1 from Firebase
+        LEDDATA1 = ProjectBucket.child("LED1").get().val()
+
+        # Get the current status of LED 2 from Firebase
+        LEDDATA2 = ProjectBucket.child("LED2").get().val()
+
+        lcd.lcd_clear()  # Clear the LCD screen
+
+        # Control LED 1 based on the value in Firebase
+        if str(LEDDATA1) == "1":
+            print("LED_1 now is ON.")
+            GPIO.output(LED_1, GPIO.HIGH)  # Turn LED 1 ON
+            ProjectBucket.child("L1").set("ON")  # Update status to Firebase
+            lcd.lcd_display_string("LED_1 : ON", 1)  # Display on LCD
+        else:
+            print("LED_1 now is OFF.")
+            GPIO.output(LED_1, GPIO.LOW)  # Turn LED 1 OFF
+            ProjectBucket.child("L1").set("OFF")  # Update status to Firebase
+            lcd.lcd_display_string("LED_1 : OFF", 1)  # Display on LCD
+
+        # Control LED 2 based on the value in Firebase
+        if str(LEDDATA2) == "1":
+            print("LED_2 now is ON.")
+            GPIO.output(LED_2, GPIO.HIGH)  # Turn LED 2 ON
+            ProjectBucket.child("L2").set("ON")  # Update status to Firebase
+            lcd.lcd_display_string("LED_2 : ON", 2)  # Display on LCD
+        else:
+            print("LED_2 now is OFF.")
+            GPIO.output(LED_2, GPIO.LOW)  # Turn LED 2 OFF
+            ProjectBucket.child("L2").set("OFF")  # Update status to Firebase
+            lcd.lcd_display_string("LED_2 : OFF", 2)  # Display on LCD
+
+        time.sleep(2)  # Pause for 2 seconds
+
+except KeyboardInterrupt:
+    # Clean up GPIO settings when the user stops the program
+    GPIO.cleanup()
